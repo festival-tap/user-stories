@@ -1,0 +1,14 @@
+# US-03: Open a tap
+
+**As a** festival attendee,
+**I want** to open a specific tap to start pouring beer,
+**so that** I can pour my own drink.
+
+**Acceptance Criteria:**
+- A PUT request to `/api/v1/dispenser/{id}/status` with `{"status": "open", "updated_at": "ISO timestamp"}` returns 204 No Content.
+- The system records the open event with the provided timestamp.
+- If the tap is already open, the request returns 409 Conflict with error code `TAP_ALREADY_OPEN`.
+
+**Technical notes:**
+- The `updated_at` timestamp is provided by the client (e.g., from the user’s device).
+- The system does not generate the timestamp; it trusts the client’s time to avoid clock skew.

@@ -1,0 +1,17 @@
+# Local environment overrides
+.env
+.env.local
+
+# Temporary acceptance test & cURL artifacts
+*.tmp
+*.log
+cookies.txt
+test-results/
+playwright-report/
+
+# OS & IDE metadata
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/

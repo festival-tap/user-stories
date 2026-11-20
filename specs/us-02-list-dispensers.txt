@@ -1,0 +1,13 @@
+# US-02: List all dispensers
+
+**As a** festival administrator,
+**I want** to view a list of all registered dispensers with their flow volume,
+**so that** I can monitor the overall bar activity at a glance.
+
+**Acceptance Criteria:**
+- A GET request to `/api/v1/dispenser` returns a 200 OK with a JSON array of dispenser objects.
+- Each object contains `id` and `flow_volume`.
+- If no dispensers exist, an empty array is returned.
+
+**Technical notes:**
+- The endpoint does not return current status or spending; only static configuration.

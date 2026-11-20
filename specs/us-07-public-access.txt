@@ -1,0 +1,12 @@
+# US-07: Public access to tap control (open/close)
+
+**As a** festival attendee,
+**I want** to open and close taps without logging in,
+**so that** I can quickly get a drink without any authentication barriers.
+
+**Acceptance Criteria:**
+- The endpoints `PUT /dispenser/{id}/status` are publicly accessible (no authentication required).
+- All other endpoints (creation, listing, spending) require admin authentication.
+
+**Technical notes:**
+- This matches the MVP requirement that attendees do not need to authenticate.

@@ -1,0 +1,14 @@
+# US-04: Close a tap
+
+**As a** festival attendee,
+**I want** to close a tap to stop pouring and see the calculated cost,
+**so that** I know how much I have consumed.
+
+**Acceptance Criteria:**
+- A PUT request to `/api/v1/dispenser/{id}/status` with `{"status": "close", "updated_at": "ISO timestamp"}` returns 204 No Content.
+- The system records the close event with the provided timestamp.
+- If the tap is already closed, the request returns 409 Conflict with error code `TAP_ALREADY_CLOSED`.
+- The system later calculates the duration, volume, and cost using the paired open/close events.
+
+**Technical notes:**
+- The cost is calculated based on the flow volume of the tap, the duration, and a fixed price per litre (12.25 €/L).

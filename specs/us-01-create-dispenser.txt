@@ -1,0 +1,15 @@
+# US-01: Create a new beer dispenser
+
+**As a** festival administrator,
+**I want** to create a new beer dispenser with a specific flow volume (liters per second),
+**so that** I can configure the bar equipment before the event starts.
+
+**Acceptance Criteria:**
+- The administrator can send a POST request to `/api/v1/dispenser` with a JSON body containing `flow_volume`.
+- The system returns a 201 Created status with a `Location` header pointing to the new resource.
+- The response body contains the generated `id` and the `flow_volume`.
+- The created dispenser is stored in the system and can be retrieved later.
+
+**Technical notes:**
+- Flow volume must be a positive number.
+- The dispenser starts with no usage events (closed state).

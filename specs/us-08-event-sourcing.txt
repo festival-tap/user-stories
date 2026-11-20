@@ -1,0 +1,15 @@
+# US-08: Record every state change as an immutable event
+
+**As a** system,
+**I need** to record every tap state change (open/close) as an immutable event in an append‑only store,
+**so that** the system can reconstruct usage history, ensure auditability, and tolerate concurrent modifications.
+
+**Acceptance Criteria:**
+- Every open or close command results in a `TapEvent` being stored with a unique event ID, sequence number, and client‑provided timestamp.
+- The event store rejects duplicate event IDs (idempotency).
+- Concurrent appends for the same tap use optimistic concurrency based on sequence numbers.
+- The spending report is built by replaying the event stream.
+
+**Technical notes:**
+- This story underpins all operational features and is implicitly satisfied by the event‑sourced architecture.
+- Stage‑1 uses an in‑memory event store; later stages will use PostgreSQL + Kafka.

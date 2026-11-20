@@ -1,0 +1,81 @@
+# ==============================================================================
+# Specification: festival-tap/user-stories CI Pipeline
+# ==============================================================================
+# Purpose:
+#   Validates repository hygiene, script syntax, and protocol portability for
+#   behavioral specs (specs/us-*.txt) and black-box acceptance suites before tagging.
+#
+# Execution Model:
+#   - Does NOT spin up an application server or execute acceptance tests
+#     (actual execution happens downstream in festival-tap/cloud-deploy).
+#   - Enforces zero hardcoded target URLs (localhost / 127.0.0.1) inside
+#     acceptance-back/ and acceptance-front/ so suites remain 100% portable
+#     across local servers, emulators, and live HTTPS endpoints.
+#   - Validates shell syntax and best practices via ShellCheck.
+#   - Verifies executable permissions (+x) on shell runners.
+#   - Ensures every functional story file (specs/us-*.txt) is non-empty.
+# ==============================================================================
+
+name: CI — Spec & Acceptance Suite Hygiene
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-suites:
+    name: Validate Specs & Acceptance Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify behavioral spec files (specs/us-*.txt)
+        run: |
+          shopt -s nullglob
+          specs=(specs/us-*.txt)
+          if [ ${#specs[@]} -eq 0 ]; then
+            echo "::error::No specs/us-*.txt specification files found."
+            exit 1
+          fi
+          for f in "${specs[@]}"; do
+            if [ ! -s "$f" ]; then
+              echo "::error::Specification file $f is empty."
+              exit 1
+            fi
+          done
+          echo "Verified ${#specs[@]} specification files."
+
+      - name: Check for hardcoded URLs in acceptance suites
+        run: |
+          if grep -rnE "https?://(localhost|127\.0\.0\.1)" acceptance-back/ acceptance-front/ 2>/dev/null; then
+            echo "::error::Hardcoded localhost URL detected. Use \${BASE_URL} or \${UI_URL} instead."
+            exit 1
+          fi
+          echo "No hardcoded localhost URLs found."
+
+      - name: Verify executable permissions on shell scripts
+        run: |
+          non_exec=$(find acceptance-back acceptance-front -type f -name "*.sh" ! -perm -u+x 2>/dev/null || true)
+          if [ -n "$non_exec" ]; then
+            echo "::error::The following scripts lack executable (+x) permissions:"
+            echo "$non_exec"
+            exit 1
+          fi
+          echo "All shell scripts have +x permissions."
+
+      - name: Run ShellCheck on acceptance scripts
+        run: |
+          shopt -s globstar nullglob
+          scripts=(acceptance-back/**/*.sh acceptance-front/**/*.sh)
+          if [ ${#scripts[@]} -gt 0 ]; then
+            shellcheck "${scripts[@]}"
+          else
+            echo "No .sh scripts found to lint."
+          fi

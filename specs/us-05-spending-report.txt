@@ -1,0 +1,15 @@
+# US-05: View spending report for a dispenser
+
+**As a** festival administrator,
+**I want** to view the total revenue and usage details for a specific dispenser,
+**so that** I can measure earnings and consumption.
+
+**Acceptance Criteria:**
+- A GET request to `/api/v1/dispenser/{id}/spending` returns 200 OK with a JSON report.
+- The report contains `amount` (total spent) and `usages` array.
+- Each usage includes `opened_at`, `closed_at` (null if still open), `flow_volume` (volume dispensed), and `total_spent`.
+- If the dispenser does not exist, returns 404 Not Found.
+
+**Technical notes:**
+- The report is built by replaying all events for the tap.
+- An open session (no close event) is included with `closed_at = null` and its volume/spent calculated up to the report generation time (snapshot).

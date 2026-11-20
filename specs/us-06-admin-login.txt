@@ -1,0 +1,14 @@
+# US-06: Admin login with fixed credentials
+
+**As a** festival administrator,
+**I want** to log in using fixed credentials,
+**so that** I can access the private management area.
+
+**Acceptance Criteria:**
+- The administrator can authenticate using username `admin` and password `admin`.
+- After successful login, protected endpoints (POST /dispenser, GET /dispenser, GET /spending) become accessible.
+- Unauthenticated requests to protected endpoints return 401 Unauthorized.
+
+**Technical notes:**
+- Basic authentication is used for simplicity in Stage‑1.
+- The public endpoint PUT /status does not require authentication.
