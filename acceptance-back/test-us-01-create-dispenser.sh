@@ -32,8 +32,10 @@
 
 set -euo pipefail
 
-BASE_URL="http://localhost:8080/api/v1"
-ADMIN_AUTH="-u admin:admax"
+BASE_URL="${BASE_URL:-http://localhost:8080/api/v1}"
+ADMIN_USER="${ADMIN_USER:-admin}"
+ADMIN_PASS="${ADMIN_PASS:-admax}"
+ADMIN_AUTH="-u ${ADMIN_USER}:${ADMIN_PASS}"
 
 fail() { echo "FAIL: $1"; exit 1; }
 pass() { echo "PASS: $1"; }

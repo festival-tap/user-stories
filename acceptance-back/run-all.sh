@@ -10,8 +10,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-BASE_URL="http://localhost:8080/api/v1"
-ADMIN_AUTH="-u admin:admax"
+BASE_URL="${BASE_URL:-http://localhost:8080/api/v1}"
+ADMIN_USER="${ADMIN_USER:-admin}"
+ADMIN_PASS="${ADMIN_PASS:-admax}"
+ADMIN_AUTH="-u ${ADMIN_USER}:${ADMIN_PASS}"
 BACKEND_LOG="/tmp/tap-backend.log"
 
 is_backend_running() {

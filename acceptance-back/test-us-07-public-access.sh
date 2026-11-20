@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-BASE_URL="http://localhost:8080/api/v1"
+BASE_URL="${BASE_URL:-http://localhost:8080/api/v1}"
 
 fail() { echo "FAIL: $1"; exit 1; }
 pass() { echo "PASS: $1"; }
@@ -23,7 +23,9 @@ fi
 pass "GET /dispenser accessible without auth"
 
 # 2. Create a tap (requires auth) to test PUT /status
-ADMIN_AUTH="-u admin:admax"
+ADMIN_USER="${ADMIN_USER:-admin}"
+ADMIN_PASS="${ADMIN_PASS:-admax}"
+ADMIN_AUTH="-u ${ADMIN_USER}:${ADMIN_PASS}"
 resp=$(curl -s -w "%{http_code}" $ADMIN_AUTH -X POST "$BASE_URL/dispenser" -H "Content-Type: application/json" -d '{"flow_volume": 0.064}')
 http_code=${resp: -3}
 body=${resp%???}

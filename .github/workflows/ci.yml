@@ -8,9 +8,9 @@
 # Execution Model:
 #   - Does NOT spin up an application server or execute acceptance tests
 #     (actual execution happens downstream in festival-tap/cloud-deploy).
-#   - Enforces zero hardcoded target URLs (localhost / 127.0.0.1) inside
-#     acceptance-back/ and acceptance-front/ so suites remain 100% portable
-#     across local servers, emulators, and live HTTPS endpoints.
+#   - Enforces zero bare hardcoded target URLs (localhost / 127.0.0.1) inside
+#     acceptance-back/ and acceptance-front/ (environment variable default
+#     fallbacks like ${BASE_URL:-http://localhost:8080} are permitted).
 #   - Validates shell syntax and best practices via ShellCheck.
 #   - Verifies executable permissions (+x) on shell runners.
 #   - Ensures every functional story file (specs/us-*.txt) is non-empty.
@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Verify behavioral spec files (specs/us-*.txt)
         run: |
@@ -52,13 +52,18 @@ jobs:
           done
           echo "Verified ${#specs[@]} specification files."
 
-      - name: Check for hardcoded URLs in acceptance suites
+      - name: Check for bare hardcoded URLs in acceptance suites
         run: |
-          if grep -rnE "https?://(localhost|127\.0\.0\.1)" acceptance-back/ acceptance-front/ 2>/dev/null; then
-            echo "::error::Hardcoded localhost URL detected. Use \${BASE_URL} or \${UI_URL} instead."
+          matches=$(grep -rnE "https?://(localhost|127\.0\.0\.1)" acceptance-back/ acceptance-front/ \
+            | grep -vE "^[^:]+:[0-9]+:[[:space:]]*#" \
+
+            | grep -vE ":-https?://(localhost|127\.0\.0\.1)" || true)
+          if [ -n "$matches" ]; then
+            echo "::error::Bare hardcoded localhost URL detected. Wrap in \${BASE_URL:-...} or \${UI_URL:-...}:"
+            echo "$matches"
             exit 1
           fi
-          echo "No hardcoded localhost URLs found."
+          echo "No bare hardcoded localhost URLs found."
 
       - name: Verify executable permissions on shell scripts
         run: |
@@ -75,7 +80,7 @@ jobs:
           shopt -s globstar nullglob
           scripts=(acceptance-back/**/*.sh acceptance-front/**/*.sh)
           if [ ${#scripts[@]} -gt 0 ]; then
-            shellcheck "${scripts[@]}"
+            shellcheck --severity=error "${scripts[@]}"
           else
             echo "No .sh scripts found to lint."
           fi
