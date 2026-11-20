@@ -56,7 +56,6 @@ jobs:
         run: |
           matches=$(grep -rnE "https?://(localhost|127\.0\.0\.1)" acceptance-back/ acceptance-front/ \
             | grep -vE "^[^:]+:[0-9]+:[[:space:]]*#" \
-
             | grep -vE ":-https?://(localhost|127\.0\.0\.1)" || true)
           if [ -n "$matches" ]; then
             echo "::error::Bare hardcoded localhost URL detected. Wrap in \${BASE_URL:-...} or \${UI_URL:-...}:"
